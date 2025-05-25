@@ -4,7 +4,7 @@ from flask import request, session, jsonify, make_response
 from flask_restful import Resource
 from config import app, db, api
 from models import Doctor, Appointment
-from datetime import Date
+from datetime import date
 
 @app.route('/')
 def index():
@@ -48,7 +48,7 @@ class Appointments(Resource):
             if not doctor:
                 return {'error': 'Doctor not found'}, 404
             
-            appointment_date = Date(data['date'])
+            appointment_date = date(data['date'])
             appointment_time = str(data['time'])
 
             new_appointment = Appointment(
@@ -67,3 +67,30 @@ class Appointments(Resource):
             db.session.rollback
             return {'error': str(e)}, 400
 api.add_resource(Appointments, '/appointments')
+
+class AppointmentById(Resource):
+    def delete(appointment_id):
+        appointment = Appointment.query.get(appointment_id)
+
+        if not appointment:
+            return {'error': 'Appointment not found'}, 404
+        
+        db.session.delete(appointment)
+        db.session.commit()
+        return {}, 204
+    
+    def patch(appointment_id):
+        data = request.get_json()
+        appointment = Appointment.query.get(appointment_id)
+
+        if not appointment:
+            return {'error': 'Appointment not found'}, 404
+        
+        for attr in data:
+            setattr(appointment, attr, data.get(attr))
+        
+        db.session.add(appointment)
+        db.session.commit()
+        return make_response(jsonify(appointment.to_dict()), 200)
+
+api.add_resource(AppointmentById, '/appointments/<int:appointment_id>')
