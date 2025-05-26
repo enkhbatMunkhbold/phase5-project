@@ -3,7 +3,7 @@
 from flask import request, session, jsonify, make_response
 from flask_restful import Resource
 from config import app, db, api
-from models import Doctor, Appointment
+from models import Doctor, Appointment, User
 from datetime import date
 
 @app.route('/')
@@ -94,3 +94,55 @@ class AppointmentById(Resource):
         return make_response(jsonify(appointment.to_dict()), 200)
 
 api.add_resource(AppointmentById, '/appointments/<int:appointment_id>')
+
+class SignUp(Resource):
+    def post(self):
+        data = request.get_json()
+        new_user = User(username = data['username'])
+        new_user.password_hash = data['password']
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        session['user_id'] = new_user.id
+        return new_user.to_dict(), 201
+    
+api.add_resource(SignUp, '/signup')
+
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(username = data['username']).first()
+        if user and user.authenticate(data['password']):
+            session['user_id'] = user.id
+            return make_response(jsonify(user.to_dict()), 200)
+        return {'message': 'Invalid credentials'}, 401
+    
+api.add_resource(Login, '/login')
+
+class CheckSession(Resource):
+    def get(self):
+        user_id = session.get('user_id')
+        if user_id:
+            user = db.session.get(User, user_id)
+            if user:
+                for doctor in user.doctors:
+                    doctor.appointments = [appointment for appointment in doctor.appointments if appointment.user_id == user.id]
+                return make_response(jsonify(user.to_dict()), 200)
+        return {}, 204
+    
+api.add_resource(CheckSession, '/check_session')
+
+class ClearSession(Resource):
+    def delete(self):
+        db.session.remove()
+        return '', 204
+    
+api.add_resource(ClearSession, '/clear_session')
+
+class Logout(Resource):
+    def delete(self):
+        session['user_id'] = None 
+        return {}, 204
+    
+api.add_resource(Logout, '/logout')

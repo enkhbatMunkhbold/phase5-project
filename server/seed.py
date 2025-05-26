@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, choice as rc
+from random import choice as rc
 
 # Remote library imports
 from faker import Faker
@@ -42,8 +42,8 @@ def create_appointments():
     for _ in range(10):
         doctor = rc(doctors)
         appointment = Appointment(
-            date = fake.date(),
-            time = fake.date(),
+            date = fake.date_between(start_date='today', end_date='+30d'),
+            time = rc(Appointment.AVAILABLE_TIMES),
             user_id = test_user.id,
             doctor_id = doctor.id
         )
@@ -53,10 +53,13 @@ def create_appointments():
 if __name__ == '__main__':
     fake = Faker()
     with app.app_context():
+        print("Creating database tables...")
+        db.create_all()
+        
         print("Start deleting tables...")        
-        User.query.delete()
-        Doctor.query.delete()
-        Appointment.query.delete()
+        # User.query.delete()
+        # Doctor.query.delete()
+        # Appointment.query.delete()
 
         print("Seeding users...")
         users = create_users()
