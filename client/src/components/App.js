@@ -3,33 +3,51 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import NavBar from "./NavBar";
 import SignUp from "./SignUp";
 import Login from "./Login";
+import UserContext from '../context/UserContext';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [ user, setUser ] = useState(null)
+  const [ isLoading, setIsLoading ] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
     fetch("/check_session")
       .then((r) => {
         if (r.ok) {
-          setIsLoggedIn(true);
+          return r.json().then(user => {
+            setUser(user)
+            setIsLoading(false);
+          })          
+        } else if (r.status === 204) {
+          setUser(null)
+          setIsLoading(false)
+        } else {
+          throw new Error(`HTTP error! Status: ${r.status}`)
         }
+      })
+      .catch(error => {
+        console.error("Error checking session:", error);
+        setUser(null);
+        setIsLoading(false);
       });
   }, []);
 
+   if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div>
+    <UserContext.Provider value={{ user, setUser }}>
       <Router>
         <NavBar />
         <div className="main-content">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<Navigate to={isLoggedIn ? "/login" : "/signup"} />} />
+            <Route path="/" element={<Navigate to={user ? "/login" : "/signup"} />} />
           </Routes>
         </div>
       </Router>
-    </div>    
+    </UserContext.Provider>    
   )
 }
 
