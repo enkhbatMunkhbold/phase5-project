@@ -39,7 +39,7 @@ def create_appointments():
     test_user = User.query.first()
     doctors = Doctor.query.all()
 
-    for _ in range(10):
+    for _ in range(4):
         doctor = rc(doctors)
         appointment = Appointment(
             date = fake.date_between(start_date='today', end_date='+30d'),
@@ -53,13 +53,10 @@ def create_appointments():
 if __name__ == '__main__':
     fake = Faker()
     with app.app_context():
-        print("Creating database tables...")
-        db.create_all()
-        
         print("Start deleting tables...")        
-        # User.query.delete()
-        # Doctor.query.delete()
-        # Appointment.query.delete()
+        User.query.delete()
+        Doctor.query.delete()
+        Appointment.query.delete()
 
         print("Seeding users...")
         users = create_users()

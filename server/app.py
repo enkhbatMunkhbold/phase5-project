@@ -10,26 +10,22 @@ from datetime import date
 def index():
     return '<h1>Project Server</h1>'
 
-
-if __name__ == '__main__':
-    app.run(port=5555, debug=True)
-
 class Doctors(Resource):
     def get(self):
-        doctors = [doctor.to_dict(rules=['-appointments']) for doctor in Doctors.query.all()]
+        doctors = [doctor.to_dict(rules=['-appointments']) for doctor in Doctor.query.all()]
         return make_response(jsonify(doctors), 200)
     
 api.add_resource(Doctors, '/doctors')
 
 class DoctorById(Resource):
-    def get(doctor_id):
+    def get(self, doctor_id):
         doctor = Doctor.query.get(doctor_id)
 
         if not doctor:
             return {'error': 'Doctor not found'}, 404
         return make_response(jsonify(doctor.to_dict()), 200)
     
-    def delete(doctor_id):
+    def delete(self, doctor_id):
         doctor = Doctor.query.get(doctor_id)
 
         if not doctor:
@@ -38,6 +34,8 @@ class DoctorById(Resource):
         db.session.delete(doctor)
         db.session.commit()
         return {}, 204
+    
+api.add_resource(DoctorById, '/doctors/<int:doctor_id>')
     
 class Appointments(Resource):
     def post(self):
@@ -69,7 +67,7 @@ class Appointments(Resource):
 api.add_resource(Appointments, '/appointments')
 
 class AppointmentById(Resource):
-    def delete(appointment_id):
+    def delete(self, appointment_id):
         appointment = Appointment.query.get(appointment_id)
 
         if not appointment:
@@ -79,7 +77,7 @@ class AppointmentById(Resource):
         db.session.commit()
         return {}, 204
     
-    def patch(appointment_id):
+    def patch(self, appointment_id):
         data = request.get_json()
         appointment = Appointment.query.get(appointment_id)
 
@@ -146,3 +144,6 @@ class Logout(Resource):
         return {}, 204
     
 api.add_resource(Logout, '/logout')
+
+if __name__ == '__main__':
+    app.run(port=5555, debug=True)
