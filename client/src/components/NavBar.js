@@ -1,12 +1,12 @@
+import { Link } from "react-router-dom";
+import '../styling/navbar.css'
 
 const NavBar = () => {
   return (
-    <header>
-      <div>
-        DOCTOR'S APPOINTMENTS        
-      </div>
-      <hr/>      
-    </header>
+    <nav className="navbar">
+      <h1>DOCTOR'S APPOINTMENTS</h1>
+      <hr className="navbar-divider" />
+    </nav>
   )
 }
 

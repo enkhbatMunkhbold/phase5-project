@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+:root {
+  --bg: #f0f2f5;  /* Light gray background */
+  --navbar-bg: #1a1b26;  /* Dark navy for navbar */
+  --header: #fff;
+  --link: #7aa2f7;  /* Soft blue for links */
+  --text: #2c3e50;  /* Dark blue-gray for text */
+  --accent: #bb9af7;  /* Soft purple for accents */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F2F2F2;
+  min-height: 100vh;
+  color: var(--text);
+}
