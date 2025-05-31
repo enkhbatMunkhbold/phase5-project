@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import SignUp from "./SignUp";
+import Home from "./Home";
 import Login from "./Login";
+import Profile from "./Profile";
 import UserContext from '../context/UserContext';
 
 function App() {
@@ -43,6 +45,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/" element={<Navigate to={user ? "/login" : "/signup"} />} />
           </Routes>
         </div>
